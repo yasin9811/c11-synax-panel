@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>C11 Synax — Private Management Panel</title>
+<style>
+:root{
+  --bg:#080a0f;--panel:#0e1118;--panel2:#121620;--line:#202633;
+  --text:#f2f4f8;--muted:#7e8798;--purple:#795cff;--purple2:#6247e8;
+  --green:#38d996;--red:#ff6577;--yellow:#f0bd63;--radius:16px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:
+  radial-gradient(circle at 70% -10%,rgba(121,92,255,.12),transparent 35%),
+  var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  min-height:100vh
+}
+button,input,textarea,select{font:inherit}
+button{touch-action:manipulation}
+.app{display:flex;min-height:100vh}
+
+/* Desktop sidebar */
+aside{
+  width:252px;background:rgba(14,17,24,.94);border-right:1px solid var(--line);
+  padding:22px 14px;position:fixed;inset:0 auto 0 0;z-index:20;
+  backdrop-filter:blur(18px)
+}
+.logo{font-size:21px;font-weight:850;letter-spacing:-.04em;padding:3px 10px 26px}
+.logo b{color:var(--purple)}
+.sub,.muted{color:var(--muted);font-size:12px}
+.logo .sub{margin-top:4px;font-weight:500;letter-spacing:0}
+.nav small{
+  display:block;color:#586174;font-size:9px;font-weight:800;
+  letter-spacing:.14em;margin:18px 10px 8px
+}
+.nav button{
+  display:flex;align-items:center;gap:10px;width:100%;border:1px solid transparent;
+  background:none;color:#929bac;text-align:left;padding:11px 12px;border-radius:10px;
+  margin:3px 0;cursor:pointer;transition:.18s ease
+}
+.nav button:hover{background:#171b25;color:#fff}
+.nav button.active{
+  background:linear-gradient(90deg,rgba(121,92,255,.18),rgba(121,92,255,.05));
+  border-color:rgba(121,92,255,.22);color:#fff;box-shadow:inset 3px 0 0 var(--purple)
+}
+
+/* Main */
+main{margin-left:252px;width:calc(100% - 252px);padding:30px;max-width:1550px}
+.top{
+  display:flex;justify-content:space-between;align-items:center;gap:18px;
+  margin-bottom:25px;position:sticky;top:0;z-index:10;padding:5px 0 18px;
+  background:linear-gradient(var(--bg) 65%,transparent)
+}
+.top h1{margin:0;font-size:26px;letter-spacing:-.035em}
+.status{
+  border:1px solid #27303d;background:#10151e;padding:9px 12px;border-radius:10px;
+  font-size:11px;font-weight:750;white-space:nowrap
+}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);margin-right:7px}
+
+/* Pages / cards */
+.page{display:none}.page.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.card{
+  background:linear-gradient(145deg,rgba(18,22,32,.98),rgba(12,15,22,.98));
+  border:1px solid var(--line);border-radius:var(--radius);padding:19px;
+  box-shadow:0 10px 30px rgba(0,0,0,.12)
+}
+.card:hover{border-color:#293141}
+.label{color:#7e8798;font-size:10px;font-weight:800;letter-spacing:.08em}
+.stat{font-size:28px;font-weight:850;letter-spacing:-.04em;margin:8px 0 3px}
+.content{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,.65fr);gap:14px;margin-top:14px}
+.title{font-weight:780;margin-bottom:15px;font-size:14px}
+.row{
+  display:flex;justify-content:space-between;align-items:center;gap:14px;
+  padding:13px 0;border-bottom:1px solid #1d232e
+}
+.row:last-child{border:0}
+.badge{
+  display:inline-flex;align-items:center;font-size:10px;font-weight:800;
+  padding:5px 8px;border-radius:7px;background:#13261f;color:#63e0a0
+}
+.warn{background:#292217;color:var(--yellow)}
+.bad{background:#351a21;color:#ff9da7}
+
+/* Controls */
+.btn{
+  border:1px solid #2b3341;background:#151a23;color:#edf0f5;border-radius:9px;
+  padding:9px 12px;cursor:pointer;transition:.16s ease;font-weight:650
+}
+.btn:hover{background:#1d2430;border-color:#394252;transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.primary{background:linear-gradient(135deg,var(--purple),var(--purple2));border-color:transparent}
+.primary:hover{background:linear-gradient(135deg,#856cff,#7055ed)}
+.danger{background:#321a20;border-color:#5a2932;color:#ff9da7}
+.toolbar,.actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.toolbar input{flex:1;min-width:180px}
+input,textarea,select{
+  width:100%;background:#0a0e14;color:#edf0f5;border:1px solid #29313e;
+  border-radius:10px;padding:11px 12px;outline:0;transition:.16s ease
+}
+input:focus,textarea:focus,select:focus{border-color:#7055ed;box-shadow:0 0 0 3px rgba(121,92,255,.10)}
+.field{margin-bottom:13px}
+.field label{display:block;color:#8992a4;font-size:10px;font-weight:750;letter-spacing:.04em;margin-bottom:7px}
+textarea{min-height:110px;resize:vertical}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:720px}
+th,td{text-align:left;padding:13px 10px;border-bottom:1px solid #1d232e}
+th{color:#737d90;font-size:9px;font-weight:800;letter-spacing:.07em}
+.table{overflow:auto;border-radius:10px}
+.empty{text-align:center;color:#687184;padding:32px}
+.notice{
+  padding:13px;background:#121721;border:1px solid #29313d;border-radius:10px;
+  color:#aeb6c4;font-size:12px;line-height:1.5
+}
+
+/* Mobile */
+.mobilebar{display:none}
+@media(max-width:1050px){
+  aside{width:220px}main{margin-left:220px;width:calc(100% - 220px);padding:22px}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .content{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+  body{overflow-x:hidden}
+  aside{display:none}
+  main{margin:0;width:100%;padding:12px 12px 88px}
+  .mobilebar{
+    display:flex;position:fixed;left:10px;right:10px;bottom:10px;height:62px;
+    z-index:50;background:rgba(15,18,26,.94);border:1px solid #252c38;
+    border-radius:17px;padding:7px;backdrop-filter:blur(18px);
+    box-shadow:0 15px 35px rgba(0,0,0,.35)
+  }
+  .mobilebar button{
+    flex:1;border:0;background:none;color:#778194;border-radius:11px;
+    font-size:10px;font-weight:750;cursor:pointer;min-width:0
+  }
+  .mobilebar button.active{background:#1b1f2a;color:#fff}
+  .mobilebar button span{display:block;font-size:17px;line-height:18px;margin-bottom:3px}
+  .top{
+    position:relative;top:auto;margin-bottom:16px;padding:5px 2px 7px;
+    align-items:flex-start
+  }
+  .top h1{font-size:21px}
+  .top .sub{font-size:11px;margin-top:3px}
+  .status{padding:7px 9px;font-size:9px}
+  .grid{grid-template-columns:1fr 1fr;gap:9px}
+  .card{padding:14px;border-radius:14px}
+  .stat{font-size:23px}
+  .label{font-size:9px}
+  .content{gap:9px;margin-top:9px}
+  .title{font-size:13px}
+  .row{padding:11px 0;font-size:12px}
+  .actions .btn{flex:1;min-width:130px}
+  .toolbar{flex-direction:column}
+  .toolbar .btn{width:100%}
+  table{font-size:11px}
+  .page>.card{min-width:0}
+}
+@media(max-width:390px){
+  main{padding-left:9px;padding-right:9px}
+  .grid{gap:7px}
+  .card{padding:12px}
+  .stat{font-size:21px}
+  .status{display:none}
+}
+
+/* Premium polish */
+.logo{display:flex;align-items:center;gap:11px;padding:3px 9px 27px}
+.brandmark{
+  width:38px;height:38px;display:grid;place-items:center;border-radius:11px;
+  color:#fff;font-size:12px;font-weight:900;letter-spacing:-.04em;
+  background:linear-gradient(145deg,#856cff,#6247e8);
+  box-shadow:0 8px 22px rgba(121,92,255,.25)
+}
+.brandname{display:flex;flex-direction:column;gap:2px;line-height:1}
+.brandname b{font-size:17px;letter-spacing:-.03em;color:#fff}
+.brandname span{font-size:7px;color:#687286;letter-spacing:.16em;font-weight:800}
+.eyebrow{font-size:8px;font-weight:850;letter-spacing:.16em;color:#687286;margin-bottom:5px}
+.topright{display:flex;align-items:center;gap:8px}
+.clock{
+  padding:8px 10px;border:1px solid #222a36;background:#0e131b;
+  border-radius:9px;color:#8d96a7;font-size:10px;font-variant-numeric:tabular-nums
+}
+.headingwrap{min-width:0}
+.card{position:relative;overflow:hidden}
+.card:before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(120deg,rgba(255,255,255,.018),transparent 40%)
+}
+.grid .card:first-child:after,.grid .card:nth-child(2):after,.grid .card:nth-child(3):after,.grid .card:nth-child(4):after{
+  content:"";position:absolute;right:-28px;top:-35px;width:90px;height:90px;border-radius:50%;
+  border:1px solid rgba(121,92,255,.10)
+}
+.grid .card:nth-child(1) .stat,.grid .card:nth-child(2) .stat{color:#f5f6fa}
+.grid .card:nth-child(3) .stat{color:#9b8cff}
+.grid .card:nth-child(4) .stat{color:#68dda4}
+.nav button{position:relative}
+.nav button.active:after{
+  content:"";position:absolute;right:11px;width:4px;height:4px;border-radius:50%;
+  background:#a99cff;box-shadow:0 0 9px #795cff
+}
+.actions .btn{min-height:40px}
+.btn.primary{box-shadow:0 7px 20px rgba(98,71,232,.16)}
+.mobilebar{box-shadow:0 18px 45px rgba(0,0,0,.45)}
+@media(max-width:700px){
+  .topright{gap:5px}
+  .clock{display:none}
+  .eyebrow{font-size:7px}
+  .headingwrap{padding-left:2px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<aside>
+<div class="logo">
+      <div class="brandmark">C11</div>
+      <div class="brandname"><b>SYNAX</b><span>CONTROL CENTER</span></div>
+    </div>
+<nav class="nav">
+<small>MANAGEMENT</small>
+<button class="active" data-page="dashboard">▦ Dashboard</button>
+<button data-page="users">◉ Active Users</button>
+<button data-page="blacklist">⊘ Blacklist</button>
+<button data-page="announcements">◈ Announcements</button>
+<small>SYSTEM</small>
+<button data-page="script">⚙ Script Control</button>
+<button data-page="api">⌁ API Status</button>
+</nav>
+</aside>
+<main>
+<header class="top">
+      <div class="headingwrap">
+        <div class="eyebrow">C11 SYNAX / CONTROL CENTER</div>
+        <h1 id="heading">Dashboard</h1>
+        <div class="sub" id="desc">Private script management overview</div>
+      </div>
+      <div class="topright">
+        <div class="clock" id="clock">--:--:--</div>
+        <div class="status"><span class="dot"></span><span id="topStatus">API ONLINE</span></div>
+      </div>
+    </header>
+
+<section id="dashboard" class="page active">
+<div class="grid">
+<div class="card"><div class="label">ACTIVE USERS</div><div class="stat" id="usersCount">0</div><div class="muted">Live heartbeat users</div></div>
+<div class="card"><div class="label">BLACKLISTED</div><div class="stat" id="banCount">0</div><div class="muted">Active restrictions</div></div>
+<div class="card"><div class="label">SCRIPT STATUS</div><div class="stat" id="scriptStat">OPEN</div><div class="muted">Current access state</div></div>
+<div class="card"><div class="label">API STATUS</div><div class="stat" id="apiStat">ONLINE</div><div class="muted">Backend connection</div></div>
+</div>
+<div class="content">
+<div class="card"><div class="title">System Overview</div>
+<div class="row"><span>Live Access</span><span class="badge">Operational</span></div>
+<div class="row"><span>Live Announcements</span><span class="badge">Operational</span></div>
+<div class="row"><span>Blacklist Service</span><span class="badge">Operational</span></div>
+<div class="row"><span>Database</span><span class="badge">Connected</span></div>
+</div>
+<div class="card"><div class="title">Quick Actions</div><div class="actions">
+<button class="btn primary" onclick="go('announcements')">New Announcement</button>
+<button class="btn" onclick="go('blacklist')">Blacklist</button>
+<button class="btn" onclick="go('script')">Script Control</button>
+</div><div class="notice">Frontend is ready to connect to your existing API. Keep API keys and bot tokens on the backend.</div></div>
+</div>
+</section>
+
+<section id="users" class="page"><div class="card">
+<div class="toolbar"><input id="search" placeholder="Search username or User ID..." oninput="filterUsers()"><button class="btn" onclick="loadDemoUsers()">Refresh</button></div>
+<div class="table"><table><thead><tr><th>USERNAME</th><th>USER ID</th><th>PLACE ID</th><th>JOB ID</th><th>LAST HEARTBEAT</th><th>STATUS</th></tr></thead><tbody id="userRows"></tbody></table></div>
+</div></section>
+
+<section id="blacklist" class="page"><div class="content">
+<div class="card"><div class="title">Add Restriction</div>
+<div class="field"><label>User ID</label><input id="banId" placeholder="Roblox User ID"></div>
+<div class="field"><label>Username</label><input id="banName" placeholder="Username"></div>
+<div class="field"><label>Reason</label><textarea id="banReason" placeholder="Reason"></textarea></div>
+<div class="field"><label>Type</label><select id="banType"><option>Permanent</option><option>Temporary</option></select></div>
+<div class="field"><label>Duration (minutes)</label><input id="banDuration" type="number" min="1" placeholder="60"></div>
+<button class="btn danger" onclick="addBan()">Apply Restriction</button>
+</div>
+<div class="card"><div class="title">Active Restrictions</div><div id="banList"></div></div>
+</div></section>
+
+<section id="announcements" class="page"><div class="content">
+<div class="card"><div class="title">Create Announcement</div>
+<div class="field"><label>MESSAGE</label><textarea id="announcement" placeholder="Message for active users..."></textarea></div>
+<button class="btn primary" onclick="sendAnnouncement()">Send Announcement</button>
+</div>
+<div class="card"><div class="title">Latest Announcement</div><div id="latest" class="notice">No announcement loaded.</div></div>
+</div></section>
+
+<section id="script" class="page"><div class="content">
+<div class="card"><div class="title">Script Control</div>
+<div class="row"><div><b>Script Access</b><div class="muted">Allow or stop new access</div></div><button id="scriptBtn" class="btn primary" onclick="toggleScript()">OPEN</button></div>
+<div class="field" style="margin-top:16px"><label>MINIMUM VERSION</label><input id="version" value="0.0.6"></div>
+<div class="field"><label>MAINTENANCE MESSAGE</label><textarea id="maintenance">C11 Synax is temporarily unavailable for maintenance.</textarea></div>
+<button class="btn" onclick="saveScriptSettings()">Save Settings</button>
+</div>
+<div class="card"><div class="title">Release Information</div>
+<div class="row"><span>Current Version</span><b>v0.0.6</b></div>
+<div class="row"><span>Channel</span><span class="badge warn">GLOBAL BETA</span></div>
+<div class="row"><span>Languages</span><b>10</b></div>
+</div></div></section>
+
+<section id="api" class="page"><div class="content">
+<div class="card"><div class="title">API Status</div>
+<div class="field"><label>API BASE URL</label><input id="apiUrl" placeholder="https://your-api.example.com"></div>
+<button class="btn primary" onclick="saveApi()">Save URL</button>
+<p class="muted">Keep private API secrets on the backend; this panel uses the public API endpoint.</p>
+</div>
+<div class="card"><div class="title">Connection</div>
+<div class="row"><span>Backend</span><span class="badge">ONLINE</span></div>
+<div class="row"><span>Last Check</span><span id="check">—</span></div>
+<div class="row"><span>Endpoint</span><span id="endpoint">Not configured</span></div>
+</div></div></section>
+
+<div class="mobilebar" aria-label="Mobile navigation">
+  <button class="active" data-page="dashboard"><span>▦</span>Home</button>
+  <button data-page="users"><span>◉</span>Users</button>
+  <button data-page="blacklist"><span>⊘</span>Blacklist</button>
+  <button data-page="announcements"><span>◈</span>News</button>
+  <button data-page="script"><span>⚙</span>System</button>
+</div>
+</main></div>
+
+<script>
+const pages={dashboard:["Dashboard","Private script management overview"],users:["Active Users","Live users reported by the script"],blacklist:["Blacklist","Manage active access restrictions"],announcements:["Announcements","Send live messages to active users"],script:["Script Control","Manage script availability and release settings"],api:["API Status","Backend connection and configuration"]};
+const DEFAULT_API="https://attractions-mime-assisted-charming.trycloudflare.com";
+let API=localStorage.getItem("c11_api")||DEFAULT_API,users=[],bans=[],open=true;
+document.querySelectorAll(".nav button,.mobilebar button").forEach(b=>b.onclick=()=>go(b.dataset.page));
+function go(id){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".nav button,.mobilebar button").forEach(x=>x.classList.toggle("active",x.dataset.page===id));heading.textContent=pages[id][0];desc.textContent=pages[id][1];if(id==="dashboard")refreshAll();if(id==="announcements")loadAnnouncement();if(id==="script")loadStatus();}
+function esc(x){return String(x??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]||m));}
+async function api(path,options={}){const r=await fetch(API.replace(/\/$/,"")+path,{...options,headers:{"Content-Type":"application/json",...(options.headers||{})}});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`);return d;}
+function setApiState(ok){apiStat.textContent=ok?"ONLINE":"OFFLINE";topStatus.textContent=ok?"API ONLINE":"API OFFLINE";}
+async function checkApi(){try{await api("/api/health");setApiState(true);check.textContent=new Date().toLocaleString();endpoint.textContent=API;return true;}catch(e){setApiState(false);apiStat.textContent="OFFLINE";check.textContent=new Date().toLocaleString();return false;}}
+async function loadStatus(){try{const d=await api("/api/status");open=!!d.scriptEnabled;scriptBtn.textContent=open?"OPEN":"CLOSED";scriptBtn.className="btn "+(open?"primary":"danger");scriptStat.textContent=open?"OPEN":"CLOSED";version.value=d.minimumVersion||"";maintenance.value=d.maintenanceMessage||"";setApiState(true);}catch(e){setApiState(false);}}
+async function loadAnnouncement(){try{const d=await api("/api/announcements/latest");latest.textContent=d.announcement?.message||"No announcement loaded.";setApiState(true);}catch(e){latest.textContent="Unable to load announcement.";setApiState(false);}}
+async function sendAnnouncement(){const t=announcement.value.trim();if(!t)return alert("Message is required.");try{await api("/api/announcements",{method:"POST",body:JSON.stringify({message:t,createdBy:"C11 Synax Panel"})});announcement.value="";await loadAnnouncement();alert("Announcement sent.");}catch(e){alert("API error: "+e.message);}}
+async function toggleScript(){try{const d=await api("/api/script/control",{method:"POST",body:JSON.stringify({enabled:!open})});open=!!d.settings.scriptEnabled;scriptBtn.textContent=open?"OPEN":"CLOSED";scriptBtn.className="btn "+(open?"primary":"danger");scriptStat.textContent=open?"OPEN":"CLOSED";}catch(e){alert("API error: "+e.message);}}
+async function saveScriptSettings(){try{const d=await api("/api/script/control",{method:"POST",body:JSON.stringify({enabled:open,minimumVersion:version.value.trim(),maintenanceMessage:maintenance.value})});version.value=d.settings.minimumVersion||"";maintenance.value=d.settings.maintenanceMessage||"";alert("Settings saved.");}catch(e){alert("API error: "+e.message);}}
+async function saveApi(){const v=apiUrl.value.trim().replace(/\/$/,"");if(!v)return alert("API URL is required.");API=v;localStorage.setItem("c11_api",API);endpoint.textContent=API;await refreshAll();}
+function renderUsers(a=users){userRows.innerHTML=a.length?a.map(u=>`<tr><td>${esc(u.username)}</td><td>${esc(u.userId)}</td><td>${esc(u.placeId)}</td><td>${esc(u.jobId)}</td><td>${esc(u.heartbeat)}</td><td><span class="badge">ONLINE</span></td></tr>`).join(""):`<tr><td colspan="6" class="empty">No active users.</td></tr>`;}
+function filterUsers(){const q=search.value.toLowerCase();renderUsers(users.filter(u=>String(u.username||"").toLowerCase().includes(q)||String(u.userId||"").includes(q)));}
+async function loadUsers(){try{const d=await api("/api/live-users");users=(d.users||d.activeUsers||[]).map(u=>({username:u.username||"Unknown",userId:u.userId||u.user_id||"",placeId:u.placeId||u.place_id||"",jobId:u.jobId||u.job_id||"",heartbeat:u.heartbeat||u.lastHeartbeat||new Date().toLocaleTimeString()}));renderUsers();update();}catch(e){users=[];renderUsers();update();}}
+function loadDemoUsers(){loadUsers();}
+async function loadBans(){banList.innerHTML=`<div class="empty">Blacklist list endpoint will be connected in the next API step.</div>`;}
+function addBan(){const id=banId.value.trim();if(!id)return alert("User ID is required.");alert("Blacklist create endpoint will be connected in the next API step.");}
+function renderBans(){banList.innerHTML=bans.length?bans.map((b,i)=>`<div class="row"><div><b>${esc(b.name)}</b><div class="muted">${esc(b.id)} · ${esc(b.reason)}</div></div><button class="btn danger" onclick="bans.splice(${i},1);renderBans();update()">Remove</button></div>`).join(""):`<div class="empty">No active restrictions.</div>`;}
+function update(){usersCount.textContent=users.length;banCount.textContent=bans.length;}
+async function refreshAll(){await Promise.all([checkApi(),loadStatus(),loadAnnouncement(),loadUsers(),loadBans()]);update();}
+function updateClock(){clock.textContent=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"});}
+apiUrl.value=API;endpoint.textContent=API;updateClock();setInterval(updateClock,1000);setInterval(refreshAll,15000);refreshAll();renderUsers();renderBans();update();
+</script>
+</body>
+</html>
